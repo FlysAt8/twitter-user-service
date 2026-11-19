@@ -29,6 +29,6 @@ docker run -d --name user-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWOR
 
 ## Отличия от схемы
 1. Нет таблицы `sessions`, в пользу JWT.
-2. Для ролей использован тип данных `Long` вместо `UUID`, так как их немного.
+2. Вместо UUID используется BIGSERIAL, так как количество ролей конечно и статично, а Long экономит место и ускоряет индексы.
 3. Нет метода `getUserRoles`, вместо этого `GET /users/{id}`, возвращает пользователей сразу с ролями
-4. Для связующей таблицы `user_role` используется `DaoHelper` с `JdbcTemplate`, так как `Spring Data JDBC` не поддерживает составные первичные ключи.
+4. Spring Data JDBC не поддерживает составные первичные ключи без использования @Embedded. Чтобы не усложнять модель, для работы с этой таблицей реализован отдельный UserRoleRepository на базе JdbcTemplate

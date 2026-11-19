@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.twitter.userservice.entity.Role;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,5 +17,5 @@ public class UserResponse {
     private String phone;
     private LocalDateTime createdAt;
 
-    private List<Role> roles;
+    private List<RoleResponse> roles;
 }

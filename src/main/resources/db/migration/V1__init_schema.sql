@@ -1,9 +1,5 @@
-DROP TABLE IF EXISTS user_role;
-DROP TABLE IF EXISTS roles;
-DROP TABLE IF EXISTS users;
-
 -- Таблица пользователей
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     firstname    VARCHAR(255) NOT NULL,
     lastname     VARCHAR(255),
@@ -14,13 +10,13 @@ CREATE TABLE users (
 );
 
 -- Таблица ролей
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id     BIGSERIAL PRIMARY KEY,
     name   VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- Связующая таблица
-CREATE TABLE user_role (
+CREATE TABLE IF NOT EXISTS user_role (
     user_id  UUID   NOT NULL,
     role_id  BIGINT NOT NULL,
     PRIMARY KEY (user_id, role_id),
@@ -29,9 +25,9 @@ CREATE TABLE user_role (
 );
 
 -- Начальные роли
-INSERT INTO roles (name) VALUES 
-('guest'), 
-('producer'), 
-('subscriber'), 
+INSERT INTO roles (name) VALUES
+('guest'),
+('producer'),
+('subscriber'),
 ('administrator')
 ON CONFLICT (name) DO NOTHING;

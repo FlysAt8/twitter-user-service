@@ -3,18 +3,20 @@ package com.twitter.userservice.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.twitter.userservice.dto.ApiResponse;
+import com.twitter.userservice.dto.RoleResponse;
 import com.twitter.userservice.entity.Role;
 import com.twitter.userservice.service.RoleService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
 
 @RestController
 @RequestMapping ("/roles")
@@ -24,14 +26,20 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    public ResponseEntity<Iterable<Role>> getAllRoles() {
-        return ResponseEntity.ok(roleService.getAllRoles());
+    public ResponseEntity<ApiResponse<List<RoleResponse>>> getAllRoles() {
+        List<RoleResponse> roles = roleService.getAllRoles().stream()
+                .map(role -> RoleResponse.builder()
+                        .id(role.getId())
+                        .name(role.getName())
+                        .build())
+                .toList();
+        return ResponseEntity.ok(ApiResponse.ok(roles));
     }
-    
+
     @PostMapping("/assign/{userId}/{roleId}")
-    public ResponseEntity<String> assignRole(@PathVariable UUID userId,
-                                            @PathVariable Long roleId){
+    public ResponseEntity<ApiResponse<Void>> assignRole(@PathVariable UUID userId,
+                                                        @PathVariable Long roleId){
         roleService.assignRole(userId, roleId);
-        return ResponseEntity.ok("Роль успешно назначена");
+        return ResponseEntity.ok(ApiResponse.ok(null, "Роль успешно назначена"));
     }
 }

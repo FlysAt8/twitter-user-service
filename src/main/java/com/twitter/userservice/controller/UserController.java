@@ -1,12 +1,11 @@
 package com.twitter.userservice.controller;
 
+import com.twitter.userservice.dto.*;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.twitter.userservice.dto.CreateUserRequest;
-import com.twitter.userservice.dto.UpdateUserRequest;
-import com.twitter.userservice.dto.UserResponse;
 import com.twitter.userservice.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,8 +22,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
-
 @RestController
 @RequestMapping ("/users")
 @RequiredArgsConstructor
@@ -33,34 +30,37 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserResponse response = userService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable UUID id) {
         UserResponse response = userService.getUserById(id);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserResponse>> getUsersByIds(@RequestParam List<UUID> ids) {
-        List<UserResponse> responses = userService.getUsersByIds(ids);
-        return ResponseEntity.ok(responses);
+    public ResponseEntity<ApiResponse<List<UserShortResponse>>> getUsersByIds(@RequestParam List<UUID> ids) {
+        List<UserShortResponse> responses = userService.getUsersByIds(ids);
+        return ResponseEntity.ok(ApiResponse.ok(responses));
     }
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable UUID id,
-        @RequestBody UpdateUserRequest request) {
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMINISTRATOR')")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@PathVariable UUID id,
+                                                                @Valid
+                                                                @RequestBody UpdateUserRequest request) {
 
         UserResponse response = userService.updateUser(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMINISTRATOR')")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.ok(null, "Пользователь удален"));
     }
 }

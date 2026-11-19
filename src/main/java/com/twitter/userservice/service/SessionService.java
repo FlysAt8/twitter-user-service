@@ -3,7 +3,7 @@ package com.twitter.userservice.service;
 import com.twitter.userservice.dto.LoginRequest;
 import com.twitter.userservice.dto.LoginResponse;
 import com.twitter.userservice.entity.User;
-import com.twitter.userservice.exceptions.NotFoundException;
+import com.twitter.userservice.exceptions.UnauthorizedException;
 import com.twitter.userservice.repository.UserRepository;
 import com.twitter.userservice.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,11 @@ public class SessionService {
     private final PasswordEncoder passwordEncoder;
 
     public LoginResponse login(LoginRequest request) {
-        
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new UnauthorizedException("Неверные учётные данные"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Неверный пароль");
+            throw new UnauthorizedException("Неверные учётные данные");
         }
 
         String token = jwtUtil.generateToken(user.getId());
