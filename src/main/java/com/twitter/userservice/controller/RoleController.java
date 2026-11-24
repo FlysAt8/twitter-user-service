@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.twitter.userservice.dto.ApiResponse;
 import com.twitter.userservice.dto.RoleResponse;
-import com.twitter.userservice.entity.Role;
 import com.twitter.userservice.service.RoleService;
 
 import lombok.RequiredArgsConstructor;
