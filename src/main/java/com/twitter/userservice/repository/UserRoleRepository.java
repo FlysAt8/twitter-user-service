@@ -8,4 +8,5 @@ public interface UserRoleRepository {
     boolean exists(UUID userId, Long roleId);
     List<Long> findRoleIdsByUserId(UUID userId);
     void deleteAllByUserId(UUID userId);
+    void removeRole(UUID userId, Long roleId);
 }

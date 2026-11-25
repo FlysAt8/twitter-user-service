@@ -36,4 +36,13 @@ public class JdbcUserRoleRepository implements UserRoleRepository {
     public void deleteAllByUserId(UUID userId) {
         jdbcTemplate.update("DELETE FROM user_role WHERE user_id = ?", userId);
     }
+
+    @Override
+    public void removeRole(UUID userId, Long roleId) {
+        jdbcTemplate.update(
+                "DELETE FROM user_role WHERE user_id = ? AND role_id = ?",
+                userId,
+                roleId
+        );
+    }
 }

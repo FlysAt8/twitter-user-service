@@ -39,4 +39,19 @@ public class RoleService {
         }
         userRoleRepository.assignRole(userId, roleId);
     }
+
+    @Transactional
+    public void removeRole(UUID userId, Long roleId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+        roleRepository.findById(roleId)
+                .orElseThrow(() -> new NotFoundException("Роль не найдена"));
+
+        if (!userRoleRepository.exists(userId, roleId)) {
+            throw new NotFoundException("У пользователя нет этой роли");
+        }
+
+        userRoleRepository.removeRole(userId, roleId);
+    }
 }
