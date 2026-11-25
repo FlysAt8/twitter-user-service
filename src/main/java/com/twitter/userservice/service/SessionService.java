@@ -2,11 +2,15 @@ package com.twitter.userservice.service;
 
 import com.twitter.userservice.dto.LoginRequest;
 import com.twitter.userservice.dto.LoginResponse;
+import com.twitter.userservice.entity.Role;
 import com.twitter.userservice.entity.User;
 import com.twitter.userservice.exceptions.UnauthorizedException;
+import com.twitter.userservice.repository.RoleRepository;
 import com.twitter.userservice.repository.UserRepository;
 import com.twitter.userservice.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class SessionService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
@@ -27,7 +32,11 @@ public class SessionService {
             throw new UnauthorizedException("Неверные учётные данные");
         }
 
-        String token = jwtUtil.generateToken(user.getId());
+        List<String> roles = roleRepository.findAllByUserId(user.getId()).stream()
+                .map(Role::getName)
+                .toList();
+
+        String token = jwtUtil.generateToken(user.getId(), roles);
 
         return LoginResponse.builder()
                 .userId(user.getId())

@@ -1,7 +1,5 @@
 package com.twitter.userservice.security;
 
-import com.twitter.userservice.entity.Role;
-import com.twitter.userservice.repository.RoleRepository;
 import com.twitter.userservice.repository.UserRepository;
 import com.twitter.userservice.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -28,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -55,8 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        List<SimpleGrantedAuthority> authorities = roleRepository.findAllByUserId(userId).stream()
-                .map(Role::getName)
+        List<SimpleGrantedAuthority> authorities = jwtUtil.getRolesFromToken(token).stream()
                 .map(String::toUpperCase)
                 .map(name -> new SimpleGrantedAuthority("ROLE_" + name))
                 .toList();
